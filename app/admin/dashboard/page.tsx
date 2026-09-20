@@ -3,7 +3,8 @@
 import { useEffect, useState, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Plus, Edit, Trash2, LogOut, Upload, X, ShieldCheck, Sparkles, Store } from 'lucide-react';
+// ✅ Tambahan: Import ikon Search
+import { Plus, Edit, Trash2, LogOut, Upload, X, Sparkles, Store, Search } from 'lucide-react';
 import Link from 'next/link';
 
 interface Product {
@@ -27,6 +28,9 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  // ✅ Tambahan: State untuk pencarian
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Form States
   const [sku, setSku] = useState('');
@@ -71,6 +75,13 @@ export default function AdminDashboardPage() {
     setLoading(false);
   };
 
+  // ✅ Tambahan: Logika untuk filter pencarian
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/admin/login');
@@ -110,7 +121,6 @@ export default function AdminDashboardPage() {
     setIsModalOpen(true);
   };
 
-  // FUNGSI PANGGILAN AI DESKRIPSI (GOOGLE GEMINI)
   const handleGenerateAI = async () => {
     if (!name.trim()) {
       alert('Isi "NAMA PRODUK" terlebih dahulu sebelum membuat deskripsi otomatis!');
@@ -261,7 +271,7 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-zinc-950 text-white p-6 md:p-12">
       <div className="max-w-7xl mx-auto">
         {/* Header Dashboard Admin */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-zinc-900 pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-zinc-900 pb-6">
           <div>
             <div className="flex items-center gap-2">
               <span className="bg-red-950 text-red-500 border border-red-800/50 text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest">
@@ -297,6 +307,20 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* ✅ Tambahan: Input Kolom Pencarian */}
+        <div className="mb-4">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <input
+              type="text"
+              placeholder="Cari berdasarkan nama produk, SKU, atau kategori..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 transition-colors"
+            />
+          </div>
+        </div>
+
         {/* Tabel Produk */}
         <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md">
           <div className="overflow-x-auto">
@@ -321,14 +345,14 @@ export default function AdminDashboardPage() {
                       Memuat katalog produk 0xdiecast...
                     </td>
                   </tr>
-                ) : products.length === 0 ? (
+                ) : filteredProducts.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="p-8 text-center text-zinc-500">
-                      Belum ada produk. Klik tombol + Tambah Produk untuk memasukkan data baru.
+                      {searchQuery ? 'Produk yang dicari tidak ditemukan.' : 'Belum ada produk. Klik tombol + Tambah Produk untuk memasukkan data baru.'}
                     </td>
                   </tr>
                 ) : (
-                  products.map((product) => {
+                  filteredProducts.map((product) => {
                     const isSoldOut = product.stock <= 0 || product.status === 'SOLD';
                     return (
                       <tr key={product.id} className="hover:bg-zinc-800/30 transition-colors">
