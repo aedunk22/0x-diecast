@@ -3,7 +3,6 @@
 import { useEffect, useState, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-// ✅ Tambahan: Import ikon Search
 import { Plus, Edit, Trash2, LogOut, Upload, X, Sparkles, Store, Search } from 'lucide-react';
 import Link from 'next/link';
 
@@ -29,7 +28,7 @@ export default function AdminDashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  // ✅ Tambahan: State untuk pencarian
+  // State untuk pencarian
   const [searchQuery, setSearchQuery] = useState('');
 
   // Form States
@@ -75,7 +74,6 @@ export default function AdminDashboardPage() {
     setLoading(false);
   };
 
-  // ✅ Tambahan: Logika untuk filter pencarian
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -87,12 +85,28 @@ export default function AdminDashboardPage() {
     router.push('/admin/login');
   };
 
+  // ✅ FUNGSI PEMBUAT SKU OTOMATIS (OPSI A)
+  const generateAutoSKU = (selectedCategory: string) => {
+    const prefixMap: Record<string, string> = {
+      'HOT WHEELS': 'HW',
+      'PREMIUM': 'PRM',
+      'CAR CULTURE': 'CC',
+      'LOOSE CONDITION': 'LSE',
+      'RLC & CONVENTION': 'RLC'
+    };
+    const prefix = prefixMap[selectedCategory] || '0XD';
+    // Ambil 6 digit angka acak dari waktu saat ini
+    const timestamp = Math.floor(Date.now() / 1000).toString().slice(-6);
+    return `${prefix}-${timestamp}`;
+  };
+
   const openAddModal = () => {
+    const defaultCategory = 'HOT WHEELS';
     setEditingProduct(null);
-    setSku('');
+    setCategory(defaultCategory);
+    setSku(generateAutoSKU(defaultCategory)); // ✅ Generate SKU saat buka modal
     setName('');
     setPrice('');
-    setCategory('HOT WHEELS');
     setCondition('Carded (Segel)');
     setStock('1');
     setStatus('AVAILABLE');
@@ -307,7 +321,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* ✅ Tambahan: Input Kolom Pencarian */}
+        {/* Input Kolom Pencarian */}
         <div className="mb-4">
           <div className="relative max-w-md">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
@@ -435,14 +449,15 @@ export default function AdminDashboardPage() {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">SKU Produk</label>
+                  <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">
+                    SKU Produk (Otomatis)
+                  </label>
                   <input
                     type="text"
                     required
                     value={sku}
                     onChange={(e) => setSku(e.target.value)}
-                    placeholder="Contoh: HW-MAIN-CIVIC-SI"
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-600 font-mono"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-300 focus:outline-none focus:border-red-600 font-mono"
                   />
                 </div>
 
@@ -496,7 +511,14 @@ export default function AdminDashboardPage() {
                     <label className="text-xs font-bold uppercase text-zinc-400 block mb-1">Kategori</label>
                     <select
                       value={category}
-                      onChange={(e) => setCategory(e.target.value)}
+                      // ✅ Ganti Kategori akan otomatis update awalan SKU jika Tambah Produk Baru
+                      onChange={(e) => {
+                        const newCategory = e.target.value;
+                        setCategory(newCategory);
+                        if (!editingProduct) {
+                          setSku(generateAutoSKU(newCategory));
+                        }
+                      }}
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600"
                     >
                       <option value="HOT WHEELS">Hot Wheels</option>
