@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { Analytics } from '@vercel/analytics/react'; // ✅ TAMBAHAN BARIS INI
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="id" className="dark">
       <body className={`${inter.className} bg-zinc-950 text-white antialiased`}>
         {children}
+        <Analytics /> {/* ✅ TAMBAHAN BARIS INI */}
       </body>
     </html>
   );
