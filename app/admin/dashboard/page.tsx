@@ -32,7 +32,7 @@ export default function AdminDashboardPage() {
   const [sku, setSku] = useState('');
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
-  const [category, setCategory] = useState('Hot Wheels');
+  const [category, setCategory] = useState('HOT WHEELS');
   const [condition, setCondition] = useState('Carded (Segel)');
   const [stock, setStock] = useState('1');
   const [status, setStatus] = useState('AVAILABLE');
@@ -81,7 +81,7 @@ export default function AdminDashboardPage() {
     setSku('');
     setName('');
     setPrice('');
-    setCategory('Hot Wheels');
+    setCategory('HOT WHEELS');
     setCondition('Carded (Segel)');
     setStock('1');
     setStatus('AVAILABLE');
@@ -475,13 +475,11 @@ export default function AdminDashboardPage() {
                       onChange={(e) => setCategory(e.target.value)}
                       className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-600"
                     >
-                      <option value="Hot Wheels">Hot Wheels</option>
-                      <option value="Premium">Premium</option>
-                      <option value="Loose">Loose</option>
-                      <option value="Treasure Hunt">Treasure Hunt</option>
-                      <option value="Matchbox">Matchbox</option>
-                      <option value="Mini GT">Mini GT</option>
-                      <option value="Inno64">Inno64</option>
+                      <option value="HOT WHEELS">Hot Wheels</option>
+                      <option value="PREMIUM">Premium</option>
+                      <option value="CAR CULTURE">Car Culture</option>
+                      <option value="LOOSE CONDITION">Loose Condition</option>
+                      <option value="RLC & CONVENTION">RLC & Convention</option>
                     </select>
                   </div>
 
